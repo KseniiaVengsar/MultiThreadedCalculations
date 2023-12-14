@@ -5,34 +5,34 @@
 #include <thread>
 #include <vector>
 #include <mutex>
-#include <chrono>//для работы со временем
+#include <chrono>//РґР»СЏ СЂР°Р±РѕС‚С‹ СЃРѕ РІСЂРµРјРµРЅРµРј
 
-//глобальный мьютекс
-std::mutex СMutex;
+//РіР»РѕР±Р°Р»СЊРЅС‹Р№ РјСЊСЋС‚РµРєСЃ
+std::mutex РЎMutex;
 
-//функция для потоков *передается номер потока и длительность
+//С„СѓРЅРєС†РёСЏ РґР»СЏ РїРѕС‚РѕРєРѕРІ *РїРµСЂРµРґР°РµС‚СЃСЏ РЅРѕРјРµСЂ РїРѕС‚РѕРєР° Рё РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊ
 void calculate(int threadNum, int duration) {
 
-    auto start = std::chrono::high_resolution_clock::now();//измеряем время
+    auto start = std::chrono::high_resolution_clock::now();//РёР·РјРµСЂСЏРµРј РІСЂРµРјСЏ
 
    
     for (int i = 0; i < duration; ++i) {
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(50)); // иммитация вычислений
+        std::this_thread::sleep_for(std::chrono::milliseconds(50)); // РёРјРјРёС‚Р°С†РёСЏ РІС‹С‡РёСЃР»РµРЅРёР№
        
         {
-            std::lock_guard<std::mutex> lock(СMutex);
-            std::cout << "Поток: " << threadNum << " [" << std::string(i + 1, '=') << std::string(duration - i - 1, ' ') << "] " << i + 1 << "/" << duration << "\n";
+            std::lock_guard<std::mutex> lock(РЎMutex);
+            std::cout << "РџРѕС‚РѕРє: " << threadNum << " [" << std::string(i + 1, '=') << std::string(duration - i - 1, ' ') << "] " << i + 1 << "/" << duration << "\n";
         }
     }
-    //измеряем сколько времени занял расчет
+    //РёР·РјРµСЂСЏРµРј СЃРєРѕР»СЊРєРѕ РІСЂРµРјРµРЅРё Р·Р°РЅСЏР» СЂР°СЃС‡РµС‚
     auto end = std::chrono::high_resolution_clock::now();
     auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   
     {
-        std::lock_guard<std::mutex> lock(СMutex);
-        std::cout << "Поток " << threadNum << " Время: " << duration_ms << " ms\n";
+        std::lock_guard<std::mutex> lock(РЎMutex);
+        std::cout << "РџРѕС‚РѕРє " << threadNum << " Р’СЂРµРјСЏ: " << duration_ms << " ms\n";
     }
 }
 
@@ -40,18 +40,18 @@ int main() {
 
     std::setlocale(LC_ALL, "RU");
 
-    const int numThreads = 3; // количество потоков
-    const int calculationDuration = 10; //длительность расчета
+    const int numThreads = 3; // РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕС‚РѕРєРѕРІ
+    const int calculationDuration = 10; //РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊ СЂР°СЃС‡РµС‚Р°
 
-    // Вектор для хранения потоков
+    // Р’РµРєС‚РѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РїРѕС‚РѕРєРѕРІ
     std::vector<std::thread> threads;
 
-    // Запускаем потоки
+    // Р—Р°РїСѓСЃРєР°РµРј РїРѕС‚РѕРєРё
     for (int i = 0; i < numThreads; ++i) {
         threads.emplace_back(calculate, i + 1, calculationDuration);
     }
 
-    // Дожидаемся завершения всех потоков
+    // Р”РѕР¶РёРґР°РµРјСЃСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ РІСЃРµС… РїРѕС‚РѕРєРѕРІ
     for (std::thread& t : threads) {
         t.join();
     }
